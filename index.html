@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>株式会社テクノダンゴムシ (Prototype)</title>
+    <style>
+        /* Google Fontsの読み込み */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&display=swap');
+
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #1a1a1a;
+            --accent-color: #000000;
+            --gray-color: #777777;
+            --light-gray: #f5f5f5;
+            --border-color: #e5e5e5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.8;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Canvas Background */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            opacity: 0.8; 
+            pointer-events: none;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 2rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 100%);
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 900;
+            letter-spacing: 0.05em;
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        /* Layout */
+        section {
+            padding: 8rem 5%;
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Typography */
+        h2 {
+            font-size: 0.875rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            color: var(--gray-color);
+            margin-bottom: 3rem;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        h2::after {
+            content: "";
+            height: 1px;
+            background-color: var(--border-color);
+            flex-grow: 1;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 900;
+            line-height: 1.3;
+            margin-bottom: 2rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hero p {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: var(--gray-color);
+            font-weight: 300;
+            letter-spacing: 0.05em;
+        }
+
+        /* Mission Section */
+        .mission-statement {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-weight: 700;
+            line-height: 1.5;
+            margin-bottom: 2rem;
+        }
+
+        .mission-desc {
+            font-size: 1.125rem;
+            color: var(--gray-color);
+            max-width: 800px;
+        }
+
+        /* Value & Service Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            padding: 3rem 2rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            transition: all 0.4s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.04);
+            border-color: #ccc;
+        }
+
+        .card-number {
+            font-size: 0.875rem;
+            color: var(--gray-color);
+            margin-bottom: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .card p {
+            color: var(--gray-color);
+            font-size: 1rem;
+        }
+
+        /* About Section */
+        .about-wrap {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+            padding: 5rem;
+            border-radius: 4px;
+            margin-bottom: 5rem;
+        }
+
+        .about-wrap h2 {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .about-wrap h2::after {
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        .profile-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #fff;
+        }
+
+        .profile-quote {
+            font-size: 1.125rem;
+            line-height: 2;
+            color: #cccccc;
+            font-weight: 300;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            section { padding: 5rem 5%; }
+            .about-wrap { padding: 3rem 2rem; margin-bottom: 3rem; }
+            .grid { gap: 1.5rem; }
+            .card { padding: 2rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bg-canvas"></canvas>
+
+    <header>
+        <a href="#" class="logo">テクノダンゴムシ</a>
+    </header>
+
+    <section class="hero">
+        <h1>子どもの好奇心を<br>立体化する。</h1>
+        <p>「迷」いながら、「路（未知）」を探る。テクノロジーとダンゴムシ迷路による新しい学び。</p>
+    </section>
+
+    <section id="mission">
+        <h2>Mission</h2>
+        <div class="mission-statement">ダンゴムシの環境デザインで、<br>主体的な学びを創出する。</div>
+        <p class="mission-desc">ダンゴムシを無理に動かすのではなく、環境を整え自然と行動を促すように。私たちは、生成AIや3Dプリンター等のテクノロジーを活用し、子どもも大人も自ら試行錯誤を楽しめる環境をデザインします。</p>
+    </section>
+
+    <section id="value">
+        <h2>Value</h2>
+        <div class="grid">
+            <div class="card">
+                <div class="card-number">01</div>
+                <h3>一次情報を取りに行く</h3>
+                <p>生成AIが瞬時に答えを出す時代にこそ、あえて泥臭く手を動かし、自分でやってみないとわからない「一次情報」の価値を大切にします。</p>
+            </div>
+            <div class="card">
+                <div class="card-number">02</div>
+                <h3>ジグザグを楽しもう</h3>
+                <p>ダンゴムシの交替性転向反応のように、最短距離のゴールだけを目指すのではなく、右へ左へと迷いながら進む過程そのものを楽しみます。</p>
+            </div>
+            <div class="card">
+                <div class="card-number">03</div>
+                <h3>ナッジを効かせる</h3>
+                <p>無理強いするのではなく、特性を理解し、自然と望ましい方向へ進むような環境とシステムを構築します。</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="service">
+        <h2>Service</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>手書き迷路の3D化</h3>
+                <p>子どもが描いた手書きの迷路を、生成AIと3Dプリンターを用いて立体化。世界に一つだけの保育グッズ・観察キットとして提供します。</p>
+            </div>
+            <div class="card">
+                <h3>親子の自由研究 伴走支援</h3>
+                <p>ダンゴムシの探索・育成から、迷路での「交替性転向反応」の実験・観察までをサポートするプログラムを提供します。</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="about">
+        <div class="about-wrap">
+            <h2>About</h2>
+            <div class="profile-title">CDO (Chief Dango Officer)<br>伊豆 勇紀</div>
+            <p class="profile-quote">
+                「ダンゴムシは絶対に転がしません。彼らがジグザグと迷路を進む姿から、私たちは環境デザインの奥深さを学ぶことができます。テクノダンゴムシは、未知の路を楽しむすべての親子を支援します。」
+            </p>
+        </div>
+    </section>
+
+    <script>
+        // --- Canvas アニメーションの設定 ---
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let points = [];
+
+        // リサイズ処理
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // 幾何学的な「単独の丸」がジグザグに進むクラス
+        class DangoPoint {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                // 画面内のランダムな位置からスタート
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                
+                // 進行方向（ランダムな角度）
+                this.angle = Math.random() * Math.PI * 2;
+                
+                this.speed = Math.random() * 0.5 + 0.8; // 移動スピード
+                this.size = 5; // 単独の黒い丸のサイズ
+                
+                // 交替性転向反応（ジグザグ）のための設定
+                this.turnInterval = Math.random() * 80 + 40; // 直進する時間
+                this.timer = 0;
+                this.turnDirection = Math.random() > 0.5 ? 1 : -1; // 1:右, -1:左
+                
+                // 迷路らしさを出すため、約90度（直角）に曲がるように設定
+                this.turnAngle = (Math.PI / 2); 
+                
+                // 軌跡（曲がった角の座標）を保存する配列
+                this.history = [];
+            }
+
+            update() {
+                this.timer++;
+                
+                // 一定距離進んだら向きをカクッと変える
+                if (this.timer > this.turnInterval) {
+                    // 現在の座標（曲がり角）を履歴に保存
+                    this.history.push({x: this.x, y: this.y});
+                    
+                    // 軌跡が長くなりすぎないように古いものを削除
+                    if (this.history.length > 10) {
+                        this.history.shift();
+                    }
+
+                    // 向きを瞬時に変える（転がるのではなく、向きを変えて進む）
+                    this.angle += this.turnAngle * this.turnDirection;
+                    this.turnDirection *= -1; // 次は反対の方向へ曲がる（交替性転向反応）
+                    
+                    this.timer = 0;
+                    this.turnInterval = Math.random() * 80 + 40; // 次の直進距離をランダムに
+                }
+
+                // 前進する
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed;
+
+                // 画面から大きく外れたらリセット
+                const margin = 100;
+                if (this.x < -margin || this.x > width + margin || 
+                    this.y < -margin || this.y > height + margin) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                // --- 軌跡の描画 ---
+                if (this.history.length > 0) {
+                    ctx.beginPath();
+                    ctx.moveTo(this.history[0].x, this.history[0].y);
+                    for (let i = 1; i < this.history.length; i++) {
+                        ctx.lineTo(this.history[i].x, this.history[i].y);
+                    }
+                    ctx.lineTo(this.x, this.y); // 現在地まで線を引く
+                    
+                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.15)'; // 薄いグレーの線
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                }
+
+                // --- 本体の描画（単独の黒い丸） ---
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.9)'; // 濃い黒
+                ctx.fill();
+            }
+        }
+
+        // 画面サイズに応じてポイントの数を調整
+        const numPoints = Math.max(10, Math.floor(window.innerWidth / 80));
+        for (let i = 0; i < numPoints; i++) {
+            const p = new DangoPoint();
+            // 最初から軌跡を描いた状態で表示させるための事前計算
+            for(let j=0; j<100; j++) p.update(); 
+            points.push(p);
+        }
+
+        // アニメーションループ
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            
+            points.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
